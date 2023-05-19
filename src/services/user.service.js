@@ -38,8 +38,23 @@ const createUser = async (userBody) => {
   return User.create(userBody);
 };
 
+const updateUserProfile = async (userId, userBody) => {
+  // Logic to update user profile (name, bio, profile picture)
+  if (
+    await findUser({
+      id: userId,
+    })
+  ) {
+    // throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    return false;
+  }
+
+  return User.update({ userBody }, { where: { id: userId } });
+};
+
 module.exports = {
   createUser,
   getUserByEmail,
   getUserById,
+  updateUserProfile,
 };

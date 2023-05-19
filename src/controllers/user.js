@@ -18,6 +18,22 @@ const getUser = asyncHandler(async (req, res) => {
   }
 });
 
+const updateProfile = asyncHandler(async (req, res) => {
+  try {
+    const {
+      user: { userId },
+      body,
+    } = req;
+    const userData = await userService.updateUserProfile(userId, body);
+    if (userData) {
+      return getResponse(res, 1, 'User updated succesfully', 200, userData, {});
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
 module.exports = {
   getUser,
+  updateProfile,
 };
