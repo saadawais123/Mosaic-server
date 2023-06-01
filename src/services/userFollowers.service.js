@@ -1,5 +1,5 @@
 const {
-  interests: Interest,
+  interest: Interest,
   userInterests: UserInterest,
   userFollowers: UserFollower,
 } = require('../sequelize/models');

@@ -42,8 +42,8 @@ module.exports = (sequelize, DataTypes) => {
       // underscored:true
     },
   );
-  // users.associate = function (models) {
-
-  // };
+  user.associate = function (models) {
+    user.hasMany(models.stance, { foreignKey: 'userId' });
+  };
   return user;
 };

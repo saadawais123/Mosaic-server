@@ -14,14 +14,7 @@ const getUserByEmail = async (email) => {
 };
 const getUserById = async (id) => {
   const user = await User.findOne({
-    where: { id: id },
-    include: [
-      {
-        model: company,
-        as: 'company',
-        required: false,
-      },
-    ],
+    where: { id },
   });
   return user;
 };
