@@ -5,6 +5,9 @@ const getAllStances = async () => {
   return await StanceModel.findAll({});
 };
 
+const getStances = async (whereClause) => {
+  return StanceModel.findAll({ where: { ...whereClause } });
+};
 const getStanceById = async (stanceId) => {
   // Logic to update user profile (name, bio, profile picture)
 
@@ -38,6 +41,46 @@ const createStance = async (stanceBody) => {
   return await StanceModel.create(stanceBody);
 };
 
+const addLikeToStance = async (stanceId) => {
+  const stance = await StanceModel.increment(
+    {
+      likes: +1,
+    },
+    {
+      where: {
+        id: stanceId,
+      },
+    },
+  );
+  return stance;
+};
+const addShareToPost = async (stanceId) => {
+  const stance = await StanceModel.increment(
+    {
+      shares: +1,
+    },
+    {
+      where: {
+        id: stanceId,
+      },
+    },
+  );
+  return stance;
+};
+const addRepostToPost = async (stanceId) => {
+  const stance = await StanceModel.increment(
+    {
+      reposts: +1,
+    },
+    {
+      where: {
+        id: stanceId,
+      },
+    },
+  );
+  return stance;
+};
+
 module.exports = {
   getAllStances,
   getStanceById,
@@ -45,4 +88,8 @@ module.exports = {
   createStance,
   updateStance,
   deleteStance,
+  getStances,
+  addLikeToStance,
+  addShareToPost,
+  addRepostToPost,
 };

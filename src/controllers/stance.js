@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const { stanceService } = require('../services');
 const { getResponse } = require('../helpers/response');
+const { getUserFollowings } = require('../services/userFollowers.service');
+const { getStances } = require('../services/stance.service');
 require('dotenv').config();
 
 const getAll = asyncHandler(async (req, res) => {
@@ -125,6 +127,94 @@ const deleteStance = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserHomeScreenStance = asyncHandler(async (req, res) => {
+  try {
+    const {
+      user: { userId },
+    } = req;
+    const userFollowing = await getUserFollowings(userId);
+    const userFollowingIds = userFollowing.map((item) => item.followingId);
+    const stances = await getStances({ userId: [...userFollowingIds] });
+    if (stances) {
+      return getResponse(
+        res,
+        1,
+        'Stance Fetched succesfully',
+        200,
+        stances,
+        {},
+      );
+    }
+    return getResponse(res, 1, 'Stance Fetched succesfully', 200, stances, {});
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
+const addLikeToStance = asyncHandler(async (req, res) => {
+  try {
+    const {
+      params: { stanceId },
+      body,
+    } = req;
+
+    const updatedStance = await stanceService.addLikeToStance(stanceId);
+    if (updatedStance) {
+      return getResponse(
+        res,
+        1,
+        'Stance updated succesfully',
+        200,
+        updatedStance,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
+const addShareToPost = asyncHandler(async (req, res) => {
+  try {
+    const {
+      params: { stanceId },
+    } = req;
+    const updatedStance = await stanceService.addShareToPost(stanceId);
+    if (updatedStance) {
+      return getResponse(
+        res,
+        1,
+        'Stance updated succesfully',
+        200,
+        updatedStance,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
+const repostStance = asyncHandler(async (req, res) => {
+  try {
+    const {
+      params: { stanceId },
+    } = req;
+    const updatedStance = await stanceService.addRepostToPost(stanceId);
+    if (updatedStance) {
+      return getResponse(
+        res,
+        1,
+        'Stance updated succesfully',
+        200,
+        updatedStance,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
 module.exports = {
   getAll,
   getById,
@@ -132,4 +222,8 @@ module.exports = {
   createnewStance,
   updateStance,
   deleteStance,
+  getUserHomeScreenStance,
+  addLikeToStance,
+  addShareToPost,
+  repostStance,
 };

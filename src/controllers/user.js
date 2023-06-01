@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { userService } = require('../services');
+const { userService, userFollower } = require('../services');
 const { getResponse } = require('../helpers/response');
 require('dotenv').config();
 
@@ -33,7 +33,73 @@ const updateProfile = asyncHandler(async (req, res) => {
   }
 });
 
+const followUser = asyncHandler(async (req, res) => {
+  try {
+    const {
+      user: { userId },
+      body: { followingId },
+    } = req;
+    const userData = await userFollower.addUserFollowing(userId, followingId);
+    if (userData) {
+      return getResponse(
+        res,
+        1,
+        'User Followed succesfully',
+        200,
+        userData,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
+const getUserFollowing = asyncHandler(async (req, res) => {
+  try {
+    const {
+      params: { userId },
+    } = req;
+    const userData = await userFollower.getUserFollowings(userId);
+    if (userData) {
+      return getResponse(
+        res,
+        1,
+        'User Followed succesfully',
+        200,
+        userData,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
+const getUserFollowers = asyncHandler(async (req, res) => {
+  try {
+    const {
+      params: { userId },
+    } = req;
+    const userData = await userFollower.getUserFollowers(userId);
+    if (userData) {
+      return getResponse(
+        res,
+        1,
+        'User Followed succesfully',
+        200,
+        userData,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
 module.exports = {
   getUser,
   updateProfile,
+  followUser,
+  getUserFollowers,
+  getUserFollowing,
 };

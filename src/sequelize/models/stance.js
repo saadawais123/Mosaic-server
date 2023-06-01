@@ -1,5 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
+const interest = require('./interest');
+const users = require('./users');
 module.exports = (sequelize, DataTypes) => {
   class stance extends Model {
     /**
@@ -29,6 +31,26 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      interestId: {
+        type: DataTypes.INTEGER,
+        // allowNull: false,
+      },
+      shares: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      dislikes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      reposts: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,
@@ -36,8 +58,10 @@ module.exports = (sequelize, DataTypes) => {
       // underscored:true
     },
   );
-  // stance.associate = function (models) {
 
-  // };
+  stance.hasOne(users, { foreignKey: 'userId' });
+  stance.belongsTo(interest, { foreignKey: 'interestId' }); // Stance belongs to an Interest
+  interest.hasMany(stance, { foreignKey: 'interestId' });
+
   return stance;
 };
