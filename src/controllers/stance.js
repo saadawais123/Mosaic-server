@@ -134,7 +134,7 @@ const getUserHomeScreenStance = asyncHandler(async (req, res) => {
       user: { userId },
     } = req;
     const userFollowing = await getUserFollowings(userId);
-    const userFollowingIds = userFollowing.map((item) => item.followingId);
+    const userFollowingIds = userFollowing?.map((item) => item?.dataValues?.id);
     const stances = await getStances({ userId: [...userFollowingIds] });
     if (stances) {
       return getResponse(
