@@ -18,27 +18,35 @@ const getUserInterests = async (userId) => {
       id: [...UserInterestsIds],
     },
   });
+  return interests;
 };
 const addUserInterests = async (userId, interestIds) => {
-  let interestsTobeAdded = [...interestIds];
-  const userInterests = await UserInterest.findAll({
-    where: { userId, interestId: [...interestIds] },
-    attributes: ['interestId'],
-  });
-  const bulkCreateData = [];
-  userInterests.map((item) => {
-    const index = interestsTobeAdded.findIndex((it) => it === item.interestId);
-    if (index > -1) {
-      interestsTobeAdded.splice(index, 1);
-    }
-  });
-  interestsTobeAdded.forEach((interestId) => {
-    bulkCreateData.push({
-      interestId,
-      userId,
+  try {
+    let interestsTobeAdded = [...interestIds];
+    const userInterests = await UserInterest.findAll({
+      where: { userId, interestId: [...interestIds] },
+      attributes: ['interestId'],
     });
-  });
-  await UserInterest.bulkCreate(bulkCreateData);
+    const bulkCreateData = [];
+    userInterests.map((item) => {
+      const index = interestsTobeAdded.findIndex(
+        (it) => it === item.interestId,
+      );
+      if (index > -1) {
+        interestsTobeAdded.splice(index, 1);
+      }
+    });
+    interestsTobeAdded.forEach((interestId) => {
+      bulkCreateData.push({
+        interestId,
+        userId,
+      });
+    });
+    await UserInterest.bulkCreate(bulkCreateData);
+    return true;
+  } catch (err) {
+    throw err;
+  }
 };
 module.exports = {
   getUserInterests,

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   userFollower.init(
     {
       followerId: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       followingId: {

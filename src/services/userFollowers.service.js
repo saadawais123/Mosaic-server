@@ -2,35 +2,62 @@ const {
   interest: Interest,
   userInterests: UserInterest,
   userFollowers: UserFollower,
+  users: User,
 } = require('../sequelize/models');
 const { Op } = require('sequelize');
 
 const getUserFollowers = async (userId) => {
-  const followerIds = await UserFollower.findAll({
+  const Userfollowers = await UserFollower.findAll({
     where: {
       followingId: userId,
     },
   });
-  return followerIds;
+  const followingids = Userfollowers?.map((item) => item?.followerId);
+  const users = await User.findAll({
+    where: {
+      id: [...followingids],
+    },
+    attributes: ['id', 'userName', 'profile_picture'],
+  });
+  return users;
 };
 
 const getUserFollowings = async (userId) => {
-  const followingIds = await UserFollower.findAll({
+  const UserFollowings = await UserFollower.findAll({
     where: {
       followerId: userId,
     },
   });
-  return followingIds;
+  const followingids = UserFollowings?.map((item) => item?.followingId);
+  const users = await User.findAll({
+    where: {
+      id: [...followingids],
+    },
+    attributes: ['id', 'userName', 'profile_picture'],
+  });
+  return users;
 };
 
 const addUserFollowing = async (userId, followingId) => {
-  const follower = await UserFollower.create({
-    where: {
-      followerId: userId,
-      followingId,
-    },
-  });
-  return follower;
+  try {
+    console.log('userId, followingId', userId, followingId);
+    const alreadyFollowing = await UserFollower.findOne({
+      where: {
+        followingId,
+        followerId: userId,
+      },
+    });
+    if (!alreadyFollowing) {
+      const follower = await UserFollower.create({
+        followerId: userId,
+        followingId,
+      });
+      return follower;
+    }
+    return false;
+  } catch (err) {
+    throw err;
+  }
 };
 
 module.exports = {

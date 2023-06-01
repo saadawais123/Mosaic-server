@@ -33,7 +33,7 @@ const getById = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'stances fetched succesfully',
+        'stance fetched succesfully',
         200,
         stances,
         {},
@@ -49,6 +49,7 @@ const getStancesByUser = asyncHandler(async (req, res) => {
     const {
       user: { userId },
     } = req;
+    console.log('userID:::::::::::::::::::', userId);
     const stances = await stanceService.getUserStance(userId);
     if (stances) {
       return getResponse(
@@ -155,7 +156,6 @@ const addLikeToStance = asyncHandler(async (req, res) => {
   try {
     const {
       params: { stanceId },
-      body,
     } = req;
 
     const updatedStance = await stanceService.addLikeToStance(stanceId);
@@ -215,6 +215,27 @@ const repostStance = asyncHandler(async (req, res) => {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
 });
+
+const dislikeStance = asyncHandler(async (req, res) => {
+  try {
+    const {
+      params: { stanceId },
+    } = req;
+    const updatedStance = await stanceService.addDislikeToPost(stanceId);
+    if (updatedStance) {
+      return getResponse(
+        res,
+        1,
+        'Stance updated succesfully',
+        200,
+        updatedStance,
+        {},
+      );
+    }
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
 module.exports = {
   getAll,
   getById,
@@ -226,4 +247,5 @@ module.exports = {
   addLikeToStance,
   addShareToPost,
   repostStance,
+  dislikeStance,
 };

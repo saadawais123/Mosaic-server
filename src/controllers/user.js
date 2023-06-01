@@ -50,6 +50,7 @@ const followUser = asyncHandler(async (req, res) => {
         {},
       );
     }
+    return getResponse(res, 1, 'User already following', 200, userData, {});
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
@@ -65,7 +66,7 @@ const getUserFollowing = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'User Followed succesfully',
+        'User Followings fetched Successfully',
         200,
         userData,
         {},
@@ -86,7 +87,7 @@ const getUserFollowers = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'User Followed succesfully',
+        'User Followers fetched succesfully',
         200,
         userData,
         {},

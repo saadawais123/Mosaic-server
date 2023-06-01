@@ -1,4 +1,4 @@
-const { stances: StanceModel } = require('../sequelize/models');
+const { stance: StanceModel } = require('../sequelize/models');
 const { Op } = require('sequelize');
 
 const getAllStances = async () => {
@@ -15,8 +15,6 @@ const getStanceById = async (stanceId) => {
 };
 
 const getUserStance = async (userId) => {
-  // Logic to update user profile (name, bio, profile picture)
-
   return await StanceModel.findAll({ where: { userId } });
 };
 
@@ -81,6 +79,20 @@ const addRepostToPost = async (stanceId) => {
   return stance;
 };
 
+const addDislikeToPost = async (stanceId) => {
+  const stance = await StanceModel.increment(
+    {
+      dislikes: +1,
+    },
+    {
+      where: {
+        id: stanceId,
+      },
+    },
+  );
+  return stance;
+};
+
 module.exports = {
   getAllStances,
   getStanceById,
@@ -92,4 +104,5 @@ module.exports = {
   addLikeToStance,
   addShareToPost,
   addRepostToPost,
+  addDislikeToPost,
 };

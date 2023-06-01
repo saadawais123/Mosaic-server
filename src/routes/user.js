@@ -4,10 +4,10 @@ const router = express.Router();
 
 const user = require('../controllers/user');
 
+router.post('/follow', user.followUser);
+router.get('/following/:userId', user.getUserFollowing);
+router.get('/followers/:userId', user.getUserFollowers);
 router.get('/:id', user.getUser);
 router.put('/:userId', user.updateProfile);
-router.post('/follow', user.followUser);
-router.post('/following/:userId', user.getUserFollowing);
-router.post('/followers/:userId', user.getUserFollowers);
 
 module.exports = router;

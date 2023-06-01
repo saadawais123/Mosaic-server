@@ -65,6 +65,7 @@ const addUserInterest = asyncHandler(async (req, res) => {
         {},
       );
     }
+    return getResponse(res, 1, 'interests  not added succesfully', 200, {}, {});
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
