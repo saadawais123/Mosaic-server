@@ -1,7 +1,7 @@
-const asyncHandler = require('express-async-handler');
-const { userService, userFollower } = require('../services');
-const { getResponse } = require('../helpers/response');
-require('dotenv').config();
+const asyncHandler = require("express-async-handler");
+const { userService, userFollower } = require("../services");
+const { getResponse } = require("../helpers/response");
+require("dotenv").config();
 
 // ===================================GET USER=================================
 const getUser = asyncHandler(async (req, res) => {
@@ -11,8 +11,9 @@ const getUser = asyncHandler(async (req, res) => {
     } = req;
     const userData = await userService.getUserById(userId);
     if (userData) {
-      return getResponse(res, 1, 'User fetched succesfully', 200, userData, {});
+      return getResponse(res, 1, "User fetched succesfully", 200, userData, {});
     }
+    return getResponse(res, 0, "User not Found", 404, userData, {});
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
@@ -26,7 +27,7 @@ const updateProfile = asyncHandler(async (req, res) => {
     } = req;
     const userData = await userService.updateUserProfile(userId, body);
     if (userData) {
-      return getResponse(res, 1, 'User updated succesfully', 200, userData, {});
+      return getResponse(res, 1, "User updated succesfully", 200, userData, {});
     }
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
@@ -44,13 +45,13 @@ const followUser = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'User Followed succesfully',
+        "User Followed succesfully",
         200,
         userData,
-        {},
+        {}
       );
     }
-    return getResponse(res, 1, 'User already following', 200, userData, {});
+    return getResponse(res, 1, "User already following", 200, userData, {});
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
@@ -66,10 +67,10 @@ const getUserFollowing = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'User Followings fetched Successfully',
+        "User Followings fetched Successfully",
         200,
         userData,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -87,10 +88,10 @@ const getUserFollowers = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'User Followers fetched succesfully',
+        "User Followers fetched succesfully",
         200,
         userData,
-        {},
+        {}
       );
     }
   } catch (error) {
