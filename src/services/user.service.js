@@ -41,7 +41,8 @@ const updateUserProfile = async (userId, userBody) => {
     return false;
   }
 
-  return User.update({ userBody }, { where: { id: userId } });
+  const result= await User.update({ ...userBody }, {returning: true,  where: { id: userId } });
+  return result
 };
 
 module.exports = {
