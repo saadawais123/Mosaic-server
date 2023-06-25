@@ -33,11 +33,10 @@ const createUser = async (userBody) => {
 
 const updateUserProfile = async (userId, userBody) => {
   // Logic to update user profile (name, bio, profile picture)
-  if (
-    await findUser({
-      id: userId,
-    })
-  ) {
+  const user = await findUser({
+    id: userId,
+  })
+  if (!user) {
     // throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
     return false;
   }
