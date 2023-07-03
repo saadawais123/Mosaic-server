@@ -156,9 +156,10 @@ const addLikeToStance = asyncHandler(async (req, res) => {
   try {
     const {
       params: { stanceId },
+      user: { userId }
     } = req;
 
-    const updatedStance = await stanceService.addLikeToStance(stanceId);
+    const updatedStance = await stanceService.addLikeToStance(stanceId, userId);
     if (updatedStance) {
       return getResponse(
         res,
@@ -169,6 +170,15 @@ const addLikeToStance = asyncHandler(async (req, res) => {
         {},
       );
     }
+    return getResponse(
+      res,
+      1,
+      'Stance already liked',
+      400,
+      updatedStance,
+      {},
+    );
+
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
@@ -220,8 +230,9 @@ const dislikeStance = asyncHandler(async (req, res) => {
   try {
     const {
       params: { stanceId },
+      user: { userId }
     } = req;
-    const updatedStance = await stanceService.addDislikeToPost(stanceId);
+    const updatedStance = await stanceService.addDislikeToPost(stanceId, userId);
     if (updatedStance) {
       return getResponse(
         res,
@@ -232,6 +243,14 @@ const dislikeStance = asyncHandler(async (req, res) => {
         {},
       );
     }
+    return getResponse(
+      res,
+      1,
+      'Stance already disliked',
+      400,
+      updatedStance,
+      {},
+    );
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }

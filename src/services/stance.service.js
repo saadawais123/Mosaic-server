@@ -1,4 +1,4 @@
-const { stance: StanceModel } = require('../sequelize/models');
+const { stance: StanceModel, userStanceAssociation: UserStanceAssociationModel, users: UserModel } = require('../sequelize/models');
 const { Op } = require('sequelize');
 
 const getAllStances = async () => {
@@ -6,7 +6,13 @@ const getAllStances = async () => {
 };
 
 const getStances = async (whereClause) => {
-  return StanceModel.findAll({ where: { ...whereClause } });
+  return StanceModel.findAll({
+    where: { ...whereClause },
+    include: {
+      model: UserModel,
+      as: "user"
+    }
+  });
 };
 const getStanceById = async (stanceId) => {
   // Logic to update user profile (name, bio, profile picture)
@@ -39,7 +45,17 @@ const createStance = async (stanceBody) => {
   return await StanceModel.create(stanceBody);
 };
 
-const addLikeToStance = async (stanceId) => {
+const addLikeToStance = async (stanceId, userId) => {
+  const alreadyLiked = await UserStanceAssociationModel.findOne({
+    where: {
+      userId,
+      stanceId,
+      associationType: 'like'
+    }
+  })
+  if (alreadyLiked) {
+    return false
+  }
   const stance = await StanceModel.increment(
     {
       likes: +1,
@@ -50,6 +66,11 @@ const addLikeToStance = async (stanceId) => {
       },
     },
   );
+  await UserStanceAssociationModel.create({
+    userId,
+    stanceId,
+    associationType: 'like'
+  })
   return stance;
 };
 const addShareToPost = async (stanceId) => {
@@ -79,7 +100,17 @@ const addRepostToPost = async (stanceId) => {
   return stance;
 };
 
-const addDislikeToPost = async (stanceId) => {
+const addDislikeToPost = async (stanceId, userId) => {
+  const alreadyLiked = await UserStanceAssociationModel.findOne({
+    where: {
+      userId,
+      stanceId,
+      associationType: 'dislike'
+    }
+  })
+  if (alreadyLiked) {
+    return false
+  }
   const stance = await StanceModel.increment(
     {
       dislikes: +1,
@@ -90,6 +121,13 @@ const addDislikeToPost = async (stanceId) => {
       },
     },
   );
+  await UserStanceAssociationModel.create({
+
+    userId,
+    stanceId,
+    associationType: 'dislike'
+
+  })
   return stance;
 };
 

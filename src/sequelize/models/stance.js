@@ -51,6 +51,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
+      topic:{
+        type: DataTypes.STRING,
+      }
     },
     {
       sequelize,
@@ -59,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   );
   stance.associate = function (models) {
-    stance.hasOne(models.users, { foreignKey: 'userId' });
+    stance.belongsTo(models.users, { foreignKey: 'userId' });
     stance.belongsTo(models.interest, { foreignKey: 'interestId' }); // Stance belongs to an Interest
   };
 
