@@ -2,8 +2,9 @@ const asyncHandler = require('express-async-handler');
 const { stanceService } = require('../services');
 const { getResponse } = require('../helpers/response');
 const { getUserFollowings } = require('../services/userFollowers.service');
-const { getStances } = require('../services/stance.service');
+const { getStances, getTopicForVideo } = require('../services/stance.service');
 require('dotenv').config();
+
 
 const getAll = asyncHandler(async (req, res) => {
   try {
@@ -90,8 +91,11 @@ const createnewStance = asyncHandler(async (req, res) => {
     const {
       user: { userId },
       body,
+      file
     } = req;
-    const addedStance = await stanceService.createStance({ userId, ...body });
+    const videoPath = file.path;
+    const topic = await getTopicForVideo(videoPath)
+    const addedStance = await stanceService.createStance({ userId, ...body,topic });
     if (addedStance) {
       return getResponse(
         res,
