@@ -159,7 +159,7 @@ async function convertVideoToTranscription(videoPath) {
   const audioPath = `./${uuidv4()}.flac`;
 
   return new Promise((resolve, reject) => {
-    const ffmpegCommand = `ffmpeg -i "${videoPath}" -vn -acodec flac "${audioPath}"`;
+    const ffmpegCommand = `ffmpeg -i "${videoPath}" -vn -acodec flac -ar 48000 -ac 2 "${audioPath}"`;
     exec(ffmpegCommand, (error, stdout, stderr) => {
       if (error) {
         console.error('FFmpeg error:', error);
