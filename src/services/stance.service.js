@@ -178,19 +178,6 @@ async function convertVideoToTranscription(videoPath) {
         .catch((error) => {
           reject(error);
         });
-
-
-
-      // speechClient
-      //   .recognize(request)
-      //   .then(([response]) => {
-      //     const transcriptions = response.results.map((result) => result.alternatives[0].transcript).join(' ');
-      //     fs.unlinkSync(audioPath);
-      //     resolve(transcriptions);
-      //   })
-      //   .catch((error) => {
-      //     reject(error);
-      //   });
     });
   });
 }
