@@ -1,15 +1,9 @@
 const { stance: StanceModel, userStanceAssociation: UserStanceAssociationModel, users: UserModel } = require('../sequelize/models');
 const { Op } = require('sequelize');
 const fs = require('fs');
-const speech = require('@google-cloud/speech');
-const ffmpeg = require('fluent-ffmpeg');
 const { v4: uuidv4 } = require('uuid');
 const { exec } = require('child_process');
 const { OpenAIApi, Configuration } = require('openai');
-const path = require('path');
-
-process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(__dirname, '../', 'googleKey.json');
-const speechClient = new speech.SpeechClient();
 
 // Set up OpenAI API
 const openaiApiKey = process.env.OPEN_AI_KEY; // Add your OpenAI API key here
@@ -19,7 +13,6 @@ const configuration = new Configuration({
 });
 
 const openaiClient = new OpenAIApi(configuration);
-// const ffmpeg = require('fluent-ffmpeg');
 
 
 const getAllStances = async () => {
@@ -173,34 +166,31 @@ async function convertVideoToTranscription(videoPath) {
         reject(error);
         return;
       }
-
       const audio = fs.readFileSync(audioPath);
-      const audioBytes = audio.toString('base64');
-
-      const config = {
-        encoding: 'FLAC',
-        sampleRateHertz: 48000,
-        languageCode: 'en-US',
-        audioChannelCount: 2
-      };
-
-      const request = {
-        audio: {
-          content: audioBytes,
-        },
-        config: config,
-      };
-
-      speechClient
-        .recognize(request)
-        .then(([response]) => {
-          const transcriptions = response.results.map((result) => result.alternatives[0].transcript).join(' ');
+      
+      openaiClient
+        .createTranscription(fs.createReadStream(audioPath), "whisper-1")
+        .then((response) => {
+          const transcriptions = response?.data.text.trim();
           fs.unlinkSync(audioPath);
           resolve(transcriptions);
         })
         .catch((error) => {
           reject(error);
         });
+
+
+
+      // speechClient
+      //   .recognize(request)
+      //   .then(([response]) => {
+      //     const transcriptions = response.results.map((result) => result.alternatives[0].transcript).join(' ');
+      //     fs.unlinkSync(audioPath);
+      //     resolve(transcriptions);
+      //   })
+      //   .catch((error) => {
+      //     reject(error);
+      //   });
     });
   });
 }
@@ -208,7 +198,7 @@ async function convertVideoToTranscription(videoPath) {
 async function analyzeVideoTopic(transcript) {
   const prompt = `This is a video about \"${transcript}"\. Please provide a one or two word topic for the video.`;
   try {
-    const {data} = await openaiClient.createCompletion({
+    const { data } = await openaiClient.createCompletion({
       model: "text-davinci-003",
       prompt,
       temperature: 1,
