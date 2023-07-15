@@ -8,6 +8,10 @@ const { Op } = require('sequelize');
 const findUser = async (whereClause) => {
   return await User.findOne({ where: whereClause });
 };
+
+const finAllUser = async () => {
+  return await User.findAll({  });
+};
 const getUserByEmail = async (email) => {
   const user = await User.findOne({ where: { email: email } });
   return user;
@@ -50,4 +54,5 @@ module.exports = {
   getUserByEmail,
   getUserById,
   updateUserProfile,
+  finAllUser
 };

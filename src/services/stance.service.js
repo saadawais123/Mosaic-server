@@ -1,4 +1,4 @@
-const { stance: StanceModel, userStanceAssociation: UserStanceAssociationModel, users: UserModel } = require('../sequelize/models');
+const { stance: StanceModel, userStanceAssociation: UserStanceAssociationModel, users: UserModel, topic: TopicModel } = require('../sequelize/models');
 const { Op } = require('sequelize');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
@@ -22,10 +22,15 @@ const getAllStances = async () => {
 const getStances = async (whereClause) => {
   return StanceModel.findAll({
     where: { ...whereClause },
-    include: {
-      model: UserModel,
-      as: "user"
-    }
+    include:
+      [{
+        model: UserModel,
+        as: "user"
+      }, {
+        model: TopicModel,
+        as: "topic"
+      }]
+
   });
 };
 const getStanceById = async (stanceId) => {
@@ -167,7 +172,7 @@ async function convertVideoToTranscription(videoPath) {
         return;
       }
       const audio = fs.readFileSync(audioPath);
-      
+
       openaiClient
         .createTranscription(fs.createReadStream(audioPath), "whisper-1")
         .then((response) => {

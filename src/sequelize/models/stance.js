@@ -51,8 +51,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
-      topic:{
-        type: DataTypes.STRING,
+      topicId: {
+        type: DataTypes.INTEGER,
       }
     },
     {
@@ -63,7 +63,9 @@ module.exports = (sequelize, DataTypes) => {
   );
   stance.associate = function (models) {
     stance.belongsTo(models.users, { foreignKey: 'userId' });
-    stance.belongsTo(models.interest, { foreignKey: 'interestId' }); // Stance belongs to an Interest
+    stance.belongsTo(models.interest, { foreignKey: 'interestId' });
+    stance.belongsTo(models.topic, { foreignKey: "topicId" })
+
   };
 
   return stance;

@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { stanceService } = require('../services');
+const { stanceService, topicService } = require('../services');
 const { getResponse } = require('../helpers/response');
 const { getUserFollowings } = require('../services/userFollowers.service');
 const { getStances, getTopicForVideo } = require('../services/stance.service');
@@ -95,7 +95,8 @@ const createnewStance = asyncHandler(async (req, res) => {
     } = req;
     const videoPath = file.path;
     const topic = await getTopicForVideo(videoPath)
-    const addedStance = await stanceService.createStance({ userId, ...body,topic });
+    const savedTopic = await topicService.findOrCreate(topic)
+    const addedStance = await stanceService.createStance({ userId, ...body, topicId: savedTopic.id });
     if (addedStance) {
       return getResponse(
         res,
@@ -135,11 +136,14 @@ const deleteStance = asyncHandler(async (req, res) => {
 const getUserHomeScreenStance = asyncHandler(async (req, res) => {
   try {
     const {
-      user: { userId },
+      // user: { userId },
+      body: {
+        topicId, userId
+      }
     } = req;
-    const userFollowing = await getUserFollowings(userId);
-    const userFollowingIds = userFollowing?.map((item) => item?.dataValues?.id);
-    const stances = await getStances({ userId: [...userFollowingIds] });
+    // const userFollowing = await getUserFollowings(userId);
+    // const userFollowingIds = userFollowing?.map((item) => item?.dataValues?.id);
+    const stances = await getStances({ userId, topicId });
     if (stances) {
       return getResponse(
         res,

@@ -19,6 +19,20 @@ const getUser = asyncHandler(async (req, res) => {
   }
 });
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  try {
+    const {
+    } = req;
+    const userData = await userService.finAllUser();
+    if (userData) {
+      return getResponse(res, 1, "User fetched succesfully", 200, userData, {});
+    }
+    return getResponse(res, 0, "User not Found", 404, userData, {});
+  } catch (error) {
+    return getResponse(res, 0, error?.message, 400, {}, {});
+  }
+});
+
 const updateProfile = asyncHandler(async (req, res) => {
   try {
     const {
@@ -104,4 +118,5 @@ module.exports = {
   followUser,
   getUserFollowers,
   getUserFollowing,
+  getAllUsers
 };
