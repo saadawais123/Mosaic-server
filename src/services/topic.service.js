@@ -32,7 +32,7 @@ const findOrCreate = async (topicName) => {
 
 const findAll = async () => {
     const topics = await TopicModel.findAll({
-        order: ['updatedAt', "desc"]
+        order: [['updatedAt', "desc"]]
     });
     return topics
 
