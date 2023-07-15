@@ -15,10 +15,11 @@ const findOrCreate = async (topicName) => {
             }
         }
     });
-   await topic.update({
-        updatedAt: new Date()
-    })
+
     if (topic) {
+        await topic.update({
+            updatedAt: new Date()
+        })
         return topic
     }
     else {
