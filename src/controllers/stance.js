@@ -1,10 +1,9 @@
-const asyncHandler = require('express-async-handler');
-const { stanceService, topicService } = require('../services');
-const { getResponse } = require('../helpers/response');
-const { getUserFollowings } = require('../services/userFollowers.service');
-const { getStances, getTopicForVideo } = require('../services/stance.service');
-require('dotenv').config();
-
+const asyncHandler = require("express-async-handler");
+const { stanceService, topicService } = require("../services");
+const { getResponse } = require("../helpers/response");
+const { getUserFollowings } = require("../services/userFollowers.service");
+const { getStances, getTopicForVideo } = require("../services/stance.service");
+require("dotenv").config();
 
 const getAll = asyncHandler(async (req, res) => {
   try {
@@ -13,10 +12,10 @@ const getAll = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'stances fetched succesfully',
+        "stances fetched succesfully",
         200,
         stances,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -34,10 +33,10 @@ const getById = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'stance fetched succesfully',
+        "stance fetched succesfully",
         200,
         stances,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -50,16 +49,16 @@ const getStancesByUser = asyncHandler(async (req, res) => {
     const {
       user: { userId },
     } = req;
-    console.log('userID:::::::::::::::::::', userId);
+    console.log("userID:::::::::::::::::::", userId);
     const stances = await stanceService.getUserStance(userId);
     if (stances) {
       return getResponse(
         res,
         1,
-        'stances fetched succesfully',
+        "stances fetched succesfully",
         200,
         stances,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -75,10 +74,10 @@ const updateStance = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'Stance updated succesfully',
+        "Stance updated succesfully",
         200,
         updatedStance,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -91,20 +90,24 @@ const createnewStance = asyncHandler(async (req, res) => {
     const {
       user: { userId },
       body,
-      file
+      file,
     } = req;
     const videoPath = file.path;
-    const topic = await getTopicForVideo(videoPath)
-    const savedTopic = await topicService.findOrCreate(topic)
-    const addedStance = await stanceService.createStance({ userId, ...body, topicId: savedTopic.id });
+    const topic = await getTopicForVideo(videoPath);
+    const savedTopic = await topicService.findOrCreate(topic);
+    const addedStance = await stanceService.createStance({
+      userId,
+      ...body,
+      topicId: savedTopic.id,
+    });
     if (addedStance) {
       return getResponse(
         res,
         1,
-        'stances added succesfully',
+        "stances added succesfully",
         200,
         addedStance,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -122,10 +125,10 @@ const deleteStance = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'Stance Deleted succesfully',
+        "Stance Deleted succesfully",
         200,
         deletedStance,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -136,10 +139,7 @@ const deleteStance = asyncHandler(async (req, res) => {
 const getUserHomeScreenStance = asyncHandler(async (req, res) => {
   try {
     const {
-      // user: { userId },
-      body: {
-        topicId, userId
-      }
+      params: { topicId, userId },
     } = req;
     // const userFollowing = await getUserFollowings(userId);
     // const userFollowingIds = userFollowing?.map((item) => item?.dataValues?.id);
@@ -148,13 +148,13 @@ const getUserHomeScreenStance = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'Stance Fetched succesfully',
+        "Stance Fetched succesfully",
         200,
         stances,
-        {},
+        {}
       );
     }
-    return getResponse(res, 1, 'Stance Fetched succesfully', 200, stances, {});
+    return getResponse(res, 1, "Stance Fetched succesfully", 200, stances, {});
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
@@ -164,7 +164,7 @@ const addLikeToStance = asyncHandler(async (req, res) => {
   try {
     const {
       params: { stanceId },
-      user: { userId }
+      user: { userId },
     } = req;
 
     const updatedStance = await stanceService.addLikeToStance(stanceId, userId);
@@ -172,21 +172,13 @@ const addLikeToStance = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'Stance updated succesfully',
+        "Stance updated succesfully",
         200,
         updatedStance,
-        {},
+        {}
       );
     }
-    return getResponse(
-      res,
-      1,
-      'Stance already liked',
-      400,
-      updatedStance,
-      {},
-    );
-
+    return getResponse(res, 1, "Stance already liked", 400, updatedStance, {});
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
   }
@@ -202,10 +194,10 @@ const addShareToPost = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'Stance updated succesfully',
+        "Stance updated succesfully",
         200,
         updatedStance,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -223,10 +215,10 @@ const repostStance = asyncHandler(async (req, res) => {
       return getResponse(
         res,
         1,
-        'Stance updated succesfully',
+        "Stance updated succesfully",
         200,
         updatedStance,
-        {},
+        {}
       );
     }
   } catch (error) {
@@ -238,26 +230,29 @@ const dislikeStance = asyncHandler(async (req, res) => {
   try {
     const {
       params: { stanceId },
-      user: { userId }
+      user: { userId },
     } = req;
-    const updatedStance = await stanceService.addDislikeToPost(stanceId, userId);
+    const updatedStance = await stanceService.addDislikeToPost(
+      stanceId,
+      userId
+    );
     if (updatedStance) {
       return getResponse(
         res,
         1,
-        'Stance updated succesfully',
+        "Stance updated succesfully",
         200,
         updatedStance,
-        {},
+        {}
       );
     }
     return getResponse(
       res,
       1,
-      'Stance already disliked',
+      "Stance already disliked",
       400,
       updatedStance,
-      {},
+      {}
     );
   } catch (error) {
     return getResponse(res, 0, error?.message, 400, {}, {});
