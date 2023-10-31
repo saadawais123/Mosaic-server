@@ -3,6 +3,7 @@ const { stanceService, topicService } = require("../services");
 const { getResponse } = require("../helpers/response");
 const { getUserFollowings } = require("../services/userFollowers.service");
 const { getStances, getTopicForVideo } = require("../services/stance.service");
+const { Op } = require("sequelize");
 require("dotenv").config();
 
 const getAll = asyncHandler(async (req, res) => {
@@ -143,7 +144,12 @@ const getUserHomeScreenStance = asyncHandler(async (req, res) => {
     } = req;
     // const userFollowing = await getUserFollowings(userId);
     // const userFollowingIds = userFollowing?.map((item) => item?.dataValues?.id);
-    const stances = await getStances({ userId, topicId });
+    const stances = await getStances({
+      userId: {
+        [Op.ne]: userId,
+      },
+      topicId,
+    });
     if (stances) {
       return getResponse(
         res,
