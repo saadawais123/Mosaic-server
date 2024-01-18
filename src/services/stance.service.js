@@ -1,19 +1,24 @@
-const { stance: StanceModel, userStanceAssociation: UserStanceAssociationModel, users: UserModel, topic: TopicModel } = require('../sequelize/models');
-const { Op } = require('sequelize');
-const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-const { exec } = require('child_process');
-const { OpenAIApi, Configuration } = require('openai');
+const {
+  stance: StanceModel,
+  userStanceAssociation: UserStanceAssociationModel,
+  users: UserModel,
+  topic: TopicModel,
+} = require("../sequelize/models");
+const { Op } = require("sequelize");
+const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
+const { exec } = require("child_process");
+const { OpenAIApi, Configuration } = require("openai");
+const { findAllTopics } = require("./topic.service");
 
 // Set up OpenAI API
 const openaiApiKey = process.env.OPEN_AI_KEY; // Add your OpenAI API key here
 
 const configuration = new Configuration({
-  apiKey: openaiApiKey
+  apiKey: openaiApiKey,
 });
 
 const openaiClient = new OpenAIApi(configuration);
-
 
 const getAllStances = async () => {
   return await StanceModel.findAll({});
@@ -22,15 +27,16 @@ const getAllStances = async () => {
 const getStances = async (whereClause) => {
   return StanceModel.findAll({
     where: { ...whereClause },
-    include:
-      [{
+    include: [
+      {
         model: UserModel,
-        as: "user"
-      }, {
+        as: "user",
+      },
+      {
         model: TopicModel,
-        as: "topic"
-      }]
-
+        as: "topic",
+      },
+    ],
   });
 };
 const getStanceById = async (stanceId) => {
@@ -46,7 +52,7 @@ const getUserStance = async (userId) => {
 const updateStance = async (id, data) => {
   const stance = await StanceModel.findOne({ where: { id } });
   if (!stance) {
-    throw new Error('Stance not found');
+    throw new Error("Stance not found");
   }
 
   return stance.update(data);
@@ -55,7 +61,7 @@ const updateStance = async (id, data) => {
 const deleteStance = async (id) => {
   const stance = await StanceModel.findOne({ where: { id } });
   if (!stance) {
-    throw new Error('Stance not found');
+    throw new Error("Stance not found");
   }
 
   return stance.destroy();
@@ -69,11 +75,11 @@ const addLikeToStance = async (stanceId, userId) => {
     where: {
       userId,
       stanceId,
-      associationType: 'like'
-    }
-  })
+      associationType: "like",
+    },
+  });
   if (alreadyLiked) {
-    return false
+    return false;
   }
   const stance = await StanceModel.increment(
     {
@@ -83,13 +89,13 @@ const addLikeToStance = async (stanceId, userId) => {
       where: {
         id: stanceId,
       },
-    },
+    }
   );
   await UserStanceAssociationModel.create({
     userId,
     stanceId,
-    associationType: 'like'
-  })
+    associationType: "like",
+  });
   return stance;
 };
 const addShareToPost = async (stanceId) => {
@@ -101,7 +107,7 @@ const addShareToPost = async (stanceId) => {
       where: {
         id: stanceId,
       },
-    },
+    }
   );
   return stance;
 };
@@ -114,7 +120,7 @@ const addRepostToPost = async (stanceId) => {
       where: {
         id: stanceId,
       },
-    },
+    }
   );
   return stance;
 };
@@ -124,11 +130,11 @@ const addDislikeToPost = async (stanceId, userId) => {
     where: {
       userId,
       stanceId,
-      associationType: 'dislike'
-    }
-  })
+      associationType: "dislike",
+    },
+  });
   if (alreadyLiked) {
-    return false
+    return false;
   }
   const stance = await StanceModel.increment(
     {
@@ -138,36 +144,40 @@ const addDislikeToPost = async (stanceId, userId) => {
       where: {
         id: stanceId,
       },
-    },
+    }
   );
   await UserStanceAssociationModel.create({
-
     userId,
     stanceId,
-    associationType: 'dislike'
-
-  })
+    associationType: "dislike",
+  });
   return stance;
 };
 const getTopicForVideo = async (videoPath) => {
   const transcript = await convertVideoToTranscription(videoPath);
-  const topic = await analyzeVideoTopic(transcript);
+
+  const allTopics = await findAllTopics();
+  const topic = await analyzeVideoTopic(
+    transcript,
+    allTopics.map((item) => item.name).join(", ")
+  );
 
   // Delete the temporary uploaded file
   fs.unlinkSync(videoPath);
 
-  return topic
-
+  return topic;
 };
 
 async function convertVideoToTranscription(videoPath) {
   const audioPath = `./${uuidv4()}.flac`;
-
   return new Promise((resolve, reject) => {
     const ffmpegCommand = `ffmpeg -i "${videoPath}" -vn -acodec flac -ar 48000 -ac 2 "${audioPath}"`;
     exec(ffmpegCommand, (error, stdout, stderr) => {
+      console.log("FFmpeg stdout:", stdout);
+      console.log("FFmpeg stderr:", stderr);
       if (error) {
-        console.error('FFmpeg error:', error);
+        console.error("FFmpeg error:", error);
+
         reject(error);
         return;
       }
@@ -187,11 +197,11 @@ async function convertVideoToTranscription(videoPath) {
   });
 }
 
-async function analyzeVideoTopic(transcript) {
-  const prompt = `This is a video about \"${transcript}"\. Please provide a one or two word topic for the video.`;
+async function analyzeVideoTopic(transcript, allTopics) {
+  const prompt = `This is a video about \"${transcript}"\. Please provide a one or two word topic for the video and also check if the video falls in any of these topics : ${allTopics}.`;
   try {
     const { data } = await openaiClient.createCompletion({
-      model: "text-davinci-003",
+      model: "gpt-3.5-turbo-instruct",
       prompt,
       temperature: 1,
       max_tokens: 256,
@@ -199,15 +209,12 @@ async function analyzeVideoTopic(transcript) {
       frequency_penalty: 0,
       presence_penalty: 0,
     });
-    const topic = data.choices[0].text.trim();
+    const topic = data.choices[0].text?.split(":")[1].trim();
     return topic;
+  } catch (err) {
+    console.log("err", err);
   }
-  catch (err) {
-    console.log("err", err)
-  }
-
 }
-
 
 module.exports = {
   getTopicForVideo,

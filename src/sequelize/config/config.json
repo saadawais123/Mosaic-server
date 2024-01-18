@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "postgres",
+    "username": "postgresdb",
     "password": "saad123",
     "database": "mosaic",
-    "host": "127.0.0.1",
+    "host": "54.197.94.186",
     "dialect": "postgres",
     "port": "5432",
     "seederStorage": "sequelize"
